@@ -1,13 +1,12 @@
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 public class InputParser {
     Scanner scanner = new Scanner(System.in);
 
-    public String welcomeMessage(){
+    public String getUserInput(){
         System.out.println("Please select a directory where you are storing your report csvs.");
         sleep(2);
         String dir = getDirectory();
@@ -21,8 +20,8 @@ public class InputParser {
 
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-
         int result = fileChooser.showOpenDialog(parentFrame);
+
         if (result == JFileChooser.APPROVE_OPTION){
             return fileChooser.getSelectedFile().getAbsolutePath();
         }
