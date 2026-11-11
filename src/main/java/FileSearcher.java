@@ -5,7 +5,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -18,7 +17,7 @@ public class FileSearcher {
 
     public List<Path> findCsvFiles() {
 
-        Path startPath = null;
+        Path startPath;
         try{
             startPath = Paths.get(pathStr);
         }

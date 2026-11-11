@@ -1,4 +1,3 @@
-import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -10,6 +9,10 @@ public class Main {
         System.out.println(dir);
 
         FileSearcher searcher = new FileSearcher(dir);
+        FileValidator validator = new FileValidator();
+
         List<Path> files = searcher.findCsvFiles();
+        validator.readCsvFiles(files);
+
     }
 }
