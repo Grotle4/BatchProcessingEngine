@@ -8,12 +8,31 @@ public class FileValidator {
 
     public void readCsvFiles(List<Path> files){
         List<Entry> entries = getRows(files);
+        List<Row> failedRows = new ArrayList<>();
         for (Entry entry:entries){
-            boolean isValid = validateHeader(entry);
-            if (!isValid){
-                entry.valid = false;
+            entry.valid = validateHeader(entry);
+            if (!entry.valid){
+                //TODO: append to list of entries that will be written as invalid due to invalid structure.
+            }
+            validateColCount(entry);
+            failedRows = removeFailedEntries(entry, failedRows);
+            for (Row row:failedRows){
+                System.out.println(Arrays.toString(row.row) +":"+row.valid + ":" + row.failureReason);
+            }
+            //entry.displayRows();
+        }
+    }
+
+    private List<Row> removeFailedEntries(Entry entry, List<Row> failures){
+        for (int i = entry.rows.size(); i >= 1; i--){
+            Row currentRow = entry.rows.get(i - 1);
+            if (!currentRow.valid){
+                currentRow.failureReason = "Invalid column size, has " + currentRow.row.length + " columns.";
+                failures.add(currentRow);
+                entry.rows.remove(currentRow);
             }
         }
+        return failures;
     }
 
     private List<Entry> getRows(List<Path> files){
@@ -50,16 +69,12 @@ public class FileValidator {
         return Arrays.equals(header.row, validHeader);
     }
 
-//    private boolean validateColCount(Entry entry){
-//        for (String[] key:row.keySet()){
-//            if(key.length == 5){
-//                return true;
-//            }
-//            else{
-//                return false;
-//            }
-//        }
-//        return false;
-//    }
+    private void validateColCount(Entry entry){
+        for (Row row: entry.rows){
+            if (row.row.length != 5){
+                row.valid = false;
+            }
+        }
+    }
 
 }
