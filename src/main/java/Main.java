@@ -6,8 +6,6 @@ public class Main {
         InputParser parser = new InputParser();
 
         String dir = parser.getUserInput();
-        System.out.println(dir);
-
         FileSearcher searcher = new FileSearcher(dir);
         FileValidator validator = new FileValidator();
 

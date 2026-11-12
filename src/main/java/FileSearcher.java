@@ -33,7 +33,7 @@ public class FileSearcher {
                         .filter(path -> path.toString().toLowerCase().endsWith(".csv"))
                         .collect(Collectors.toList());
 
-                csvFiles.forEach(System.out::println);
+                //csvFiles.forEach(System.out::println);
                 return csvFiles;
             }
         }

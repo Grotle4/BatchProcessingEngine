@@ -7,47 +7,59 @@ import java.util.*;
 public class FileValidator {
 
     public void readCsvFiles(List<Path> files){
-        List<Map<String[], Boolean>> processedFiles = getRowList(files);
-        for (Map<String[], Boolean> file:processedFiles){
-            boolean isValid = validateHeader(file);
-            System.out.println(isValid);
+        List<Entry> entries = getRows(files);
+        for (Entry entry:entries){
+            boolean isValid = validateHeader(entry);
+            if (!isValid){
+                entry.valid = false;
+            }
         }
-
-
     }
 
-    private List<Map<String[], Boolean>> getRowList(List<Path> files){
-        List<Map<String[], Boolean>> readFiles = new ArrayList<>();
+    private List<Entry> getRows(List<Path> files){
+
+        List<Entry> entries = new ArrayList<>();
 
         String delim = ",";
         String line = "";
 
         for (Path file : files){
             String filepath = file.toString();
+            List<Row> rows = new ArrayList<>();
+
             try (BufferedReader br = new BufferedReader(new FileReader(filepath))){
-                Map<String[], Boolean> rows = new HashMap<>();
                 while ((line = br.readLine()) != null){
                     String[] row = line.split(delim);
-                    rows.put(row, true);
+                    Row entryRow = new Row(row, true);
+                    rows.add(entryRow);
                 }
-                readFiles.add(rows);
             }
             catch (IOException e){
                 e.printStackTrace();
             }
+            Entry entry = new Entry(rows, true, file);
+            entries.add(entry);
         }
-        return readFiles;
+        return entries;
     }
 
 
-    private boolean validateHeader(Map<String[], Boolean> file){
+    private boolean validateHeader(Entry entry){
         String[] validHeader = {"customerId", "firstName", "lastName", "email", "accountBalance"};
-
-        List<Map.Entry<String[], Boolean>> entryList = new ArrayList<>(file.entrySet());
-
-        Map.Entry<String[], Boolean> header = entryList.getFirst();
-
-        return Arrays.equals(header.getKey(), validHeader);
+        Row header = entry.rows.getFirst();
+        return Arrays.equals(header.row, validHeader);
     }
+
+//    private boolean validateColCount(Entry entry){
+//        for (String[] key:row.keySet()){
+//            if(key.length == 5){
+//                return true;
+//            }
+//            else{
+//                return false;
+//            }
+//        }
+//        return false;
+//    }
 
 }
