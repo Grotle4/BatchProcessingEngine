@@ -9,30 +9,38 @@ public class FileValidator {
     public void readCsvFiles(List<Path> files){
         List<Entry> entries = getRows(files);
         List<Row> failedRows = new ArrayList<>();
+
         for (Entry entry:entries){
             entry.valid = validateHeader(entry);
-            if (!entry.valid){
+
+            if (entry.valid){
+                validateColCount(entry);
+                removeFailedEntries(entry, failedRows);
+                validateColumns(entry);
+                removeFailedEntries(entry, failedRows);
+
+                for (Row row:failedRows){
+                    System.out.println(Arrays.toString(row.row) +":"+row.valid + ":" + row.failureReason);
+                }
+                System.out.println(failedRows.size());
+                entry.displayRows();
+            }
+            else {
                 //TODO: append to list of entries that will be written as invalid due to invalid structure.
+                System.out.println("File has invalid header structure, skipping: " + entry.originalFile);
             }
-            validateColCount(entry);
-            failedRows = removeFailedEntries(entry, failedRows);
-            for (Row row:failedRows){
-                System.out.println(Arrays.toString(row.row) +":"+row.valid + ":" + row.failureReason);
-            }
-            //entry.displayRows();
         }
     }
 
-    private List<Row> removeFailedEntries(Entry entry, List<Row> failures){
+    private void removeFailedEntries(Entry entry, List<Row> failures){
         for (int i = entry.rows.size(); i >= 1; i--){
             Row currentRow = entry.rows.get(i - 1);
             if (!currentRow.valid){
-                currentRow.failureReason = "Invalid column size, has " + currentRow.row.length + " columns.";
+                System.out.println("found a failure: " + Arrays.toString(currentRow.row));
                 failures.add(currentRow);
                 entry.rows.remove(currentRow);
             }
         }
-        return failures;
     }
 
     private List<Entry> getRows(List<Path> files){
@@ -65,23 +73,30 @@ public class FileValidator {
 
     private boolean validateHeader(Entry entry){
         String[] validHeader = {"customerId", "firstName", "lastName", "email", "accountBalance"};
-        Row header = entry.rows.getFirst();
-        return Arrays.equals(header.row, validHeader);
+        try {
+            Row header = entry.rows.getFirst();
+            return Arrays.equals(header.row, validHeader);
+        }
+        catch (NoSuchElementException e){
+            System.out.println("ERROR: CSV file " + entry.originalFile + " is empty");
+            return false;
+        }
     }
 
     private void validateColCount(Entry entry){
         for (Row row:entry.rows){
             if (row.row.length != 5){
+                row.failureReason = "Invalid column size, has " + row.row.length + " columns.";
                 row.valid = false;
             }
         }
     }
 
     private void validateColumns(Entry entry){
-        for (Row row:entry.rows){
-            for(int i = 0; i <= row.row.length; i++){
-                    validateInt(i,row);
-                }
+        for (int i = 1; i < entry.rows.size(); i++){
+            Row currentRow = entry.rows.get(i);
+            for(int j = 0; j <= currentRow.row.length; j++){
+                validateInt(j,currentRow);
             }
         }
     }
@@ -93,13 +108,14 @@ public class FileValidator {
             }
         }
         catch (NumberFormatException e) {
+            System.out.println("Found an invalid one.");
             row.valid = false;
             row.failureReason = "Unique ID column is not a sequence of whole numbers.";
         }
     }
 
     private void validateNames(int idx, Row row) {//Do not ommit '-.
-        
+
     }
 
 }
