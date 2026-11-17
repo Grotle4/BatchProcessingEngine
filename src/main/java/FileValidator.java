@@ -70,11 +70,36 @@ public class FileValidator {
     }
 
     private void validateColCount(Entry entry){
-        for (Row row: entry.rows){
+        for (Row row:entry.rows){
             if (row.row.length != 5){
                 row.valid = false;
             }
         }
+    }
+
+    private void validateColumns(Entry entry){
+        for (Row row:entry.rows){
+            for(int i = 0; i <= row.row.length; i++){
+                    validateInt(i,row);
+                }
+            }
+        }
+    }
+
+    private void validateInt(int idx, Row row) {
+        try {
+            if (idx == 0) {
+                Integer.parseInt(row.row[idx]);
+            }
+        }
+        catch (NumberFormatException e) {
+            row.valid = false;
+            row.failureReason = "Unique ID column is not a sequence of whole numbers.";
+        }
+    }
+
+    private void validateNames(int idx, Row row) {//Do not ommit '-.
+        
     }
 
 }
