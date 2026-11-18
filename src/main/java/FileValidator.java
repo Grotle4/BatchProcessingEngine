@@ -19,17 +19,17 @@ public class FileValidator {
                 removeFailedEntries(entry, failedRows);
                 validateColumns(entry, failedRows);
 
-
-                for (Row row:failedRows){
-                    System.out.println(Arrays.toString(row.row) +":"+row.valid + ":" + row.failureReason);
-                }
-                System.out.println(failedRows.size());
                 entry.displayRows();
             }
+
             else {
                 //TODO: append to list of entries that will be written as invalid due to invalid structure.
                 System.out.println("File has invalid header structure, skipping: " + entry.originalFile);
             }
+        }
+        validateDuplicateId(entries, failedRows);
+        for (Row row:failedRows){
+            System.out.println(Arrays.toString(row.row) +":"+row.valid + ":" + row.failureReason);
         }
     }
 
@@ -157,4 +157,24 @@ public class FileValidator {
         }
     }
 
+    private void validateDuplicateId(List<Entry> entries, List<Row> failedRows){
+        List<String> uniqueIds = new ArrayList<>();
+
+        for (Entry entry:entries){
+            if (entry.valid){
+                for (int i = 1; i < entry.rows.size(); i++){
+                    Row currentRow = entry.rows.get(i);
+                    if (!uniqueIds.contains(currentRow.row[0])){
+                        uniqueIds.add(currentRow.row[0]);
+                    }
+                    else{
+                        currentRow.valid = false;
+                        currentRow.failureReason = "Duplicate unique id found in file: " + entry.originalFile;
+                    }
+                }
+                removeFailedEntries(entry, failedRows);
+                entry.displayRows();
+            }
+        }
+    }
 }
