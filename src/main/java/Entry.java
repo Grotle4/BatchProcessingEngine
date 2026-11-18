@@ -1,4 +1,5 @@
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -10,7 +11,7 @@ public class Entry {
     private String headerFailureReason;
 
     public Entry(List<Row> Rows, boolean Valid, Path OriginalFile){
-        this.rows = Rows;
+        this.rows = new ArrayList<>(Rows);
         this.headerValid = Valid;
         this.originalFile = OriginalFile;
     }
@@ -31,6 +32,7 @@ public class Entry {
     }
 
     public void removeHeader(){
+        System.out.println(rows);
         rows.removeFirst();
     }
 
@@ -50,7 +52,7 @@ public class Entry {
         return headerFailureReason;
     }
 
-    public void updateValidity(boolean val){
+    public void updateHeaderValidity(boolean val){
         headerValid = val;
     }
 

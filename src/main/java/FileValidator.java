@@ -11,7 +11,7 @@ public class FileValidator {
         List<Entry> entries = getRows(files);
 
         for (Entry entry:entries){
-            entry.updateValidity(validateHeader(entry));
+            entry.updateHeaderValidity(validateHeader(entry));
 
             if (entry.getHeaderValidity()){
                 entry.removeHeader();
@@ -147,11 +147,13 @@ public class FileValidator {
             if (entry.getHeaderValidity()){
                 for (int i = 0; i < entry.getRows().size(); i++){
                     Row currentRow = entry.getRows().get(i);
-                    if (!uniqueIds.contains(currentRow.getRow()[0])){
-                        uniqueIds.add(currentRow.getRow()[0]);
-                    }
-                    else{
-                        currentRow.addFailureReason("Duplicate unique id found in file: " + entry.getOriginalFile());
+                    if (currentRow.getValidity()){
+                        if (!uniqueIds.contains(currentRow.getRow()[0])){
+                            uniqueIds.add(currentRow.getRow()[0]);
+                        }
+                        else{
+                            currentRow.addFailureReason("Duplicate unique id found in file: " + entry.getOriginalFile());
+                        }
                     }
                 }
                 entry.displayRows();
