@@ -90,7 +90,7 @@ public class FileValidator {
     private void validateColumns(Entry entry){
         for (int i = entry.getRows().size() - 1; i >= 0; i--){
             Row currentRow = entry.getRows().get(i);
-            if (!currentRow.checkColCount()){
+            if (currentRow.getRow().length == 5){
                 validateInt(currentRow);
                 validateNames(1, currentRow);
                 validateNames(2, currentRow);
@@ -148,10 +148,7 @@ public class FileValidator {
                 for (int i = 0; i < entry.getRows().size(); i++){
                     Row currentRow = entry.getRows().get(i);
                     if (currentRow.getValidity()){
-                        if (!uniqueIds.contains(currentRow.getRow()[0])){
-                            uniqueIds.add(currentRow.getRow()[0]);
-                        }
-                        else{
+                        if (!uniqueIds.add(currentRow.getRow()[0])){
                             currentRow.addFailureReason("Duplicate unique id found in prior entry.");
                         }
                     }

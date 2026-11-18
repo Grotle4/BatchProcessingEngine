@@ -34,9 +34,5 @@ public class Row {
         failureReasons.add(reason);
     }
 
-    public boolean checkColCount(){
-        return failureReasons.stream()
-                .anyMatch(reason -> reason.contains("Invalid column size"));
-    }
 
 }
