@@ -19,6 +19,7 @@ public class FileValidator {
                 validateColumns(entry);
                 removeFailedEntries(entry, failedRows);
 
+
                 for (Row row:failedRows){
                     System.out.println(Arrays.toString(row.row) +":"+row.valid + ":" + row.failureReason);
                 }
@@ -97,6 +98,7 @@ public class FileValidator {
             Row currentRow = entry.rows.get(i);
             for(int j = 0; j <= currentRow.row.length; j++){
                 validateInt(j,currentRow);
+                validateNames(j, currentRow);
             }
         }
     }
@@ -114,8 +116,28 @@ public class FileValidator {
         }
     }
 
-    private void validateNames(int idx, Row row) {//Do not ommit '-.
+    private void validateNames(int idx, Row row) {//Do not omit '-.
+        if (idx == 1 || idx == 2) {
+            System.out.println("Testing: " + row.row[idx]);
+            List<Character> invalidChars = List.of('!','@', '#', '$', '%', '^', '&', '*', '(', ')');
+            Set<Character> invalidSet = new HashSet<>(invalidChars);
 
+            // Check if we have any symbols in our names
+            boolean isInvalidChars = row.row[idx].chars()
+                            .anyMatch(c -> invalidSet.contains((char) c));
+
+            boolean isInvalidDigits = row.row[idx].matches(".*\\d.*"); // Regex check to see if we have any numbers in our name
+
+            if (isInvalidChars || isInvalidDigits ){
+                row.valid = false;
+                if (idx == 1){
+                    row.failureReason = "Invalid character found in first name, cannot contain any symbols or numbers except \"-\", \"'\" or \".\".";
+                }
+                else {
+                    row.failureReason = "Invalid character found in last name, cannot contain any symbols or numbers except \"-\", \"'\" or \".\".";
+                }
+            }
+        }
     }
 
 }
