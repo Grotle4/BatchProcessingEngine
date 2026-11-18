@@ -9,53 +9,40 @@ public class FileValidator {
 
     public void readCsvFiles(List<Path> files){
         List<Entry> entries = getRows(files);
-        List<Row> failedRows = new ArrayList<>();
 
         for (Entry entry:entries){
             entry.updateValidity(validateHeader(entry));
-            entry.removeHeader();
 
-            if (entry.getValidity()){
+            if (entry.getHeaderValidity()){
+                entry.removeHeader();
                 validateColCount(entry);
-                validateColumns(entry, failedRows);
+                validateColumns(entry);
                 //entry.displayRows();
             }
-
             else {
-                //TODO: append to list of entries that will be written as invalid due to invalid structure.
-                System.out.println("File has invalid header structure, skipping: " + entry.getOriginalFile());
+                //TODO: append to list of entries that will be written as invalid due to invalid structure
             }
         }
-        validateDuplicateId(entries, failedRows);
+        validateDuplicateId(entries);
     }
 
-//    private void removeFailedEntries(Entry entry, List<Row> failures){
-//        for (int i = entry.rows.size(); i >= 1; i--){
-//            Row currentRow = entry.rows.get(i - 1);
-//            if (!currentRow.valid){
-//                System.out.println("found a failure: " + Arrays.toString(currentRow.row));
-//                failures.add(currentRow);
-//                entry.rows.remove(currentRow);
-//            }
-//        }
-//    }
 
     private List<Entry> getRows(List<Path> files){
 
         List<Entry> entries = new ArrayList<>();
 
         String delim = ",";
-        String line = "";
+        String line;
 
         for (Path file : files){
             String filepath = file.toString();
             List<Row> rows = new ArrayList<>();
-            int rowNum = 0;
+            int rowNum = 1;
 
             try (BufferedReader br = new BufferedReader(new FileReader(filepath))){
                 while ((line = br.readLine()) != null){
                     String[] row = line.split(delim);
-                    Row entryRow = new Row(row, true);
+                    Row entryRow = new Row(row);
                     entryRow.assignRowNum(rowNum);
                     rows.add(entryRow);
                     rowNum++;
@@ -75,11 +62,17 @@ public class FileValidator {
         String[] validHeader = {"customerId", "firstName", "lastName", "email", "accountBalance"};
         try {
             Row header = entry.getHeader();
-            return Arrays.equals(header.getRow(), validHeader);
+            boolean isMatching = Arrays.equals(header.getRow(), validHeader);
+            if (!isMatching){
+                entry.assignHeaderFailure("File has invalid header structure");
+                System.out.println("File has invalid header structure, skipping: " + entry.getOriginalFile());
+            }
+
+            return isMatching;
         }
         catch (NoSuchElementException e){
             System.out.println("ERROR: CSV file " + entry.getOriginalFile() + " is empty");
-
+            entry.assignHeaderFailure("File is blank.");
             return false;
         }
     }
@@ -87,90 +80,91 @@ public class FileValidator {
     private void validateColCount(Entry entry){
         for (Row row:entry.getRows()){
             if (row.getRow().length != 5){
-                row.setFailureReason("Invalid column size, has " + row.getRow().length + " columns.");
-                row.setValidity(false);
+                row.addFailureReason("Invalid column size, has " + row.getRow().length + " columns.");
             }
         }
     }
 
-    private void validateColumns(Entry entry, List<Row> failedRows){
+    private void validateColumns(Entry entry){
         for (int i = entry.getRows().size() - 1; i >= 0; i--){
             Row currentRow = entry.getRows().get(i);
-            for(int j = 0; j <= currentRow.getRow().length; j++){
-                validateInt(j,currentRow);
-                validateNames(j, currentRow);
-                validateEmail(j, currentRow);
+            if (!currentRow.checkColCount()){
+                validateInt(currentRow);
+                validateNames(1, currentRow);
+                validateNames(2, currentRow);
+                validateEmail(currentRow);
+                validateBalance(currentRow);
             }
-
         }
     }
 
-    private void validateInt(int idx, Row row) {
+    private void validateInt(Row row) {
         try {
-            if (idx == 0) {
-                Integer.parseInt(row.getRow()[idx]);
-            }
+            Integer.parseInt(row.getRow()[0]);
         }
         catch (NumberFormatException e) {
-            row.setValidity(false);
-            row.setFailureReason("Unique ID column is not a sequence of whole numbers.");
+            row.addFailureReason("Unique ID column is not a sequence of whole numbers.");
         }
     }
 
     private void validateNames(int idx, Row row) {//Do not omit '-.
-        if (idx == 1 || idx == 2) {
-            List<Character> invalidChars = List.of('!','@', '#', '$', '%', '^', '&', '*', '(', ')');
-            Set<Character> invalidSet = new HashSet<>(invalidChars);
+        List<Character> invalidChars = List.of('!','@', '#', '$', '%', '^', '&', '*', '(', ')');
+        Set<Character> invalidSet = new HashSet<>(invalidChars);
 
-            // Check if we have any symbols in our names
-            boolean isInvalidChars = row.getRow()[idx].chars()
-                            .anyMatch(c -> invalidSet.contains((char) c));
+        // Check if we have any symbols in our names
+        boolean isInvalidChars = row.getRow()[idx].chars()
+                        .anyMatch(c -> invalidSet.contains((char) c));
 
-            boolean isInvalidDigits = row.getRow()[idx].matches(".*\\d.*"); // Regex check to see if we have any numbers in our name
+        boolean isInvalidDigits = row.getRow()[idx].matches(".*\\d.*"); // Regex check to see if we have any numbers in our name
 
-            if (isInvalidChars || isInvalidDigits ){
-                row.setValidity(false);
+            if (isInvalidChars || isInvalidDigits){
                 if (idx == 1){
-                    row.setFailureReason("Invalid character found in first name, cannot contain any symbols or numbers except \"-\", \"'\" or \".\".");
+                    row.addFailureReason("Invalid character found in first name, cannot contain any symbols or numbers except \"-\", \"'\" or \".\".");
                 }
                 else {
-                    row.setFailureReason("Invalid character found in last name, cannot contain any symbols or numbers except \"-\", \"'\" or \".\".");
+                    row.addFailureReason("Invalid character found in last name, cannot contain any symbols or numbers except \"-\", \"'\" or \".\".");
                 }
             }
         }
-    }
 
-    private void validateEmail(int idx, Row row){
-        if (idx == 3){
-            String emailRegex =
-                    "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
-            Pattern emailPattern = Pattern.compile(emailRegex);
 
-            boolean isValidEmail = emailPattern.matcher(row.getRow()[idx]).matches();
-            if (!isValidEmail){
-                row.setValidity(false);
-                row.setFailureReason("Invalid email structure provided. Should be ####@####.###");
-            }
+    private void validateEmail(Row row){
+        String emailRegex =
+                "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+        Pattern emailPattern = Pattern.compile(emailRegex);
+
+        boolean isValidEmail = emailPattern.matcher(row.getRow()[3]).matches();
+        if (!isValidEmail){
+            row.addFailureReason("Invalid email structure provided. Should be ####@####.###");
         }
+
     }
 
-    private void validateDuplicateId(List<Entry> entries, List<Row> failedRows){
-        List<String> uniqueIds = new ArrayList<>();
+    private void validateDuplicateId(List<Entry> entries){
+        Set<String> uniqueIds = new HashSet<>();
 
         for (Entry entry:entries){
-            if (entry.getValidity()){
+            if (entry.getHeaderValidity()){
                 for (int i = 0; i < entry.getRows().size(); i++){
                     Row currentRow = entry.getRows().get(i);
                     if (!uniqueIds.contains(currentRow.getRow()[0])){
                         uniqueIds.add(currentRow.getRow()[0]);
                     }
                     else{
-                        currentRow.setValidity(false);
-                        currentRow.setFailureReason("Duplicate unique id found in file: " + entry.getOriginalFile());
+                        currentRow.addFailureReason("Duplicate unique id found in file: " + entry.getOriginalFile());
                     }
                 }
                 entry.displayRows();
             }
+        }
+    }
+
+    private void validateBalance(Row row){
+        try{
+            Double.parseDouble(row.getRow()[4]);
+        }
+        catch (NumberFormatException e){
+            row.addFailureReason("Account balance is not a valid number.");
         }
     }
 }

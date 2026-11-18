@@ -1,14 +1,13 @@
-import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Row {
     private String[] row;
-    private boolean valid;
-    private String failureReason = "";
+    private List<String> failureReasons = new ArrayList<>();
     private int rowNumber;
 
-    public Row(String[] Row, boolean Valid){
+    public Row(String[] Row){
         this.row = Row;
-        this.valid = Valid;
     }
 
     public void assignRowNum(int num){
@@ -20,23 +19,24 @@ public class Row {
     }
 
     public boolean getValidity(){
-        return valid;
+        return failureReasons.isEmpty();
     }
 
-    public String getFailureReason(){
-        return failureReason;
+    public List<String> getFailureReasons(){
+        return failureReasons;
     }
 
     public int getRowNumber(){
         return rowNumber;
     }
 
-    public void setFailureReason(String reason){
-        failureReason = reason;
+    public void addFailureReason(String reason){
+        failureReasons.add(reason);
     }
 
-    public void setValidity(boolean val){
-        valid = val;
+    public boolean checkColCount(){
+        return failureReasons.stream()
+                .anyMatch(reason -> reason.contains("Invalid column size"));
     }
 
 }

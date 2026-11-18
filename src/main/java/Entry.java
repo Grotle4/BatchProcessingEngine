@@ -5,18 +5,19 @@ import java.util.List;
 
 public class Entry {
     private List<Row> rows;
-    private boolean valid;
+    private boolean headerValid;
     private final Path originalFile;
+    private String headerFailureReason;
 
     public Entry(List<Row> Rows, boolean Valid, Path OriginalFile){
         this.rows = Rows;
-        this.valid = Valid;
+        this.headerValid = Valid;
         this.originalFile = OriginalFile;
     }
 
     public void displayRows(){
         for (Row row:rows){
-            System.out.println(row.getRowNumber() + ":" + Arrays.toString(row.getRow()) +":"+row.getValidity()+":"+row.getFailureReason());
+            System.out.println(row.getRowNumber() + ":" + Arrays.toString(row.getRow()) +":"+row.getValidity()+":"+row.getFailureReasons());
         }
         System.out.println();
     }
@@ -33,17 +34,20 @@ public class Entry {
         rows.removeFirst();
     }
 
-    public boolean getValidity(){
-        return valid;
+    public boolean getHeaderValidity(){
+        return headerValid;
     }
 
     public Path getOriginalFile(){
         return originalFile;
     }
 
+    public void assignHeaderFailure(String reason){
+        headerFailureReason = reason;
+    }
 
     public void updateValidity(boolean val){
-        valid = val;
+        headerValid = val;
     }
 
 
