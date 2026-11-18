@@ -3,6 +3,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class FileValidator {
 
@@ -16,8 +17,7 @@ public class FileValidator {
             if (entry.valid){
                 validateColCount(entry);
                 removeFailedEntries(entry, failedRows);
-                validateColumns(entry);
-                removeFailedEntries(entry, failedRows);
+                validateColumns(entry, failedRows);
 
 
                 for (Row row:failedRows){
@@ -93,13 +93,15 @@ public class FileValidator {
         }
     }
 
-    private void validateColumns(Entry entry){
-        for (int i = 1; i < entry.rows.size(); i++){
+    private void validateColumns(Entry entry, List<Row> failedRows){
+        for (int i = entry.rows.size() - 1; i >= 1; i--){
             Row currentRow = entry.rows.get(i);
             for(int j = 0; j <= currentRow.row.length; j++){
                 validateInt(j,currentRow);
                 validateNames(j, currentRow);
+                validateEmail(j, currentRow);
             }
+            removeFailedEntries(entry, failedRows);
         }
     }
 
@@ -110,7 +112,6 @@ public class FileValidator {
             }
         }
         catch (NumberFormatException e) {
-            System.out.println("Found an invalid one.");
             row.valid = false;
             row.failureReason = "Unique ID column is not a sequence of whole numbers.";
         }
@@ -128,6 +129,8 @@ public class FileValidator {
 
             boolean isInvalidDigits = row.row[idx].matches(".*\\d.*"); // Regex check to see if we have any numbers in our name
 
+            System.out.println(isInvalidChars + " " + isInvalidDigits);
+
             if (isInvalidChars || isInvalidDigits ){
                 row.valid = false;
                 if (idx == 1){
@@ -136,6 +139,20 @@ public class FileValidator {
                 else {
                     row.failureReason = "Invalid character found in last name, cannot contain any symbols or numbers except \"-\", \"'\" or \".\".";
                 }
+            }
+        }
+    }
+
+    private void validateEmail(int idx, Row row){
+        if (idx == 3){
+            String emailRegex =
+                    "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+            Pattern emailPattern = Pattern.compile(emailRegex);
+
+            boolean isValidEmail = emailPattern.matcher(row.row[idx]).matches();
+            if (!isValidEmail){
+                row.valid = false;
+                row.failureReason = "Invalid email structure provided. Should be ####@####.###";
             }
         }
     }
