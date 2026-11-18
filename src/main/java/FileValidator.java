@@ -1,7 +1,9 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Path;
+import java.text.Normalizer;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -107,13 +109,11 @@ public class FileValidator {
         }
     }
 
-    private void validateNames(int idx, Row row) {//Do not omit '-.
-        List<Character> invalidChars = List.of('!','@', '#', '$', '%', '^', '&', '*', '(', ')');
-        Set<Character> invalidSet = new HashSet<>(invalidChars);
+    private void validateNames(int idx, Row row) {
+        Pattern allLetters = Pattern.compile("^[\\p{L}&&\\p{IsLatin}]+$");
 
-        // Check if we have any symbols in our names
-        boolean isInvalidChars = row.getRow()[idx].chars()
-                        .anyMatch(c -> invalidSet.contains((char) c));
+        String normalized = Normalizer.normalize(row.getRow()[idx], Normalizer.Form.NFC);
+        boolean isInvalidChars = !allLetters.matcher(normalized).matches();
 
         boolean isInvalidDigits = row.getRow()[idx].matches(".*\\d.*"); // Regex check to see if we have any numbers in our name
 
@@ -152,7 +152,7 @@ public class FileValidator {
                             uniqueIds.add(currentRow.getRow()[0]);
                         }
                         else{
-                            currentRow.addFailureReason("Duplicate unique id found in file: " + entry.getOriginalFile());
+                            currentRow.addFailureReason("Duplicate unique id found in prior entry.");
                         }
                     }
                 }
@@ -163,7 +163,7 @@ public class FileValidator {
 
     private void validateBalance(Row row){
         try{
-            Double.parseDouble(row.getRow()[4]);
+            new BigDecimal(row.getRow()[4].trim());
         }
         catch (NumberFormatException e){
             row.addFailureReason("Account balance is not a valid number.");
