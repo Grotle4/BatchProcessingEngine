@@ -7,7 +7,7 @@ public class Row {
     private int rowNumber;
 
     public Row(String[] Row){
-        this.row = Row;
+        this.row = Row.clone();
     }
 
     public void assignRowNum(int num){
@@ -23,7 +23,7 @@ public class Row {
     }
 
     public List<String> getFailureReasons(){
-        return failureReasons;
+        return List.copyOf(failureReasons);
     }
 
     public int getRowNumber(){

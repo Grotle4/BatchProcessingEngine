@@ -46,6 +46,10 @@ public class Entry {
         headerFailureReason = reason;
     }
 
+    public String getHeaderFailureReason(){
+        return headerFailureReason;
+    }
+
     public void updateValidity(boolean val){
         headerValid = val;
     }
