@@ -32,7 +32,6 @@ public class Entry {
     }
 
     public void removeHeader(){
-        System.out.println(rows);
         rows.removeFirst();
     }
 

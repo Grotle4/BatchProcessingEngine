@@ -31,7 +31,7 @@ public class FileValidator {
 
         List<Entry> entries = new ArrayList<>();
 
-        String delim = ",";
+        String delim = "\\|";
         String line;
 
         for (Path file : files){
