@@ -20,12 +20,14 @@ public class FileValidatorTest {
         Path testPath = Path.of("src/test/resources/test.csv");
 
         Row content = new Row(new String[]{"1030", "test", "user", "test@gmail.com", "405"});
-        List<Path> testPaths = List.of(testPath);
-        List<Row> expectedRows = List.of(content);
+        Row content2 = new Row(new String[]{"1031", "test1", "user", "test@gmail.com", "405"});
+        content2.addFailureReason("Invalid character found in first name, cannot contain any symbols or numbers except \"-\", \"'\" or \".\".");
+        List<Row> expectedRows = List.of(content, content2);
         Entry expected = new Entry(expectedRows, true, testPath);
         List<Entry> expectedEntries = new ArrayList<>();
         expectedEntries.add(expected);
 
+        List<Path> testPaths = List.of(testPath);
         List<Entry> entries = validator.readCsvFiles(testPaths);
 
         record comparedEntry(
@@ -70,14 +72,16 @@ public class FileValidatorTest {
                     baseline.getOriginalFile(),
                     baseline.getHeaderFailureReason());
             baselineEntries.add(baselineEntry);
-
+            int i = 2;
             for (Row baselineRow:baseline.getRows()){
+
                 comparedRow baselineCompareRow = new comparedRow(
                         Arrays.toString(baselineRow.getRow()),
                         baselineRow.getFailureReasons(),
-                        2
+                        i
                 );
                 baselineRows.add(baselineCompareRow);
+                i++;
             }
 
         }
