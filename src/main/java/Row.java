@@ -1,3 +1,5 @@
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,5 +36,17 @@ public class Row {
         failureReasons.add(reason);
     }
 
+    public void roundBalance(){
+        for (int i = 1; i < row.length; i++){
+            try{
+                BigDecimal balance = new BigDecimal(row[i].trim());
+                BigDecimal rounded = balance.setScale(2, RoundingMode.DOWN);
+                String roundedStr = rounded.toString();
+                row[i] = roundedStr;
+            }
+            catch (NumberFormatException e){
 
+            }
+        }
+    }
 }

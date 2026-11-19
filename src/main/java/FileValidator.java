@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 public class FileValidator {
 
-    public void readCsvFiles(List<Path> files){
+    public List<Entry> readCsvFiles(List<Path> files){
         List<Entry> entries = getRows(files);
 
         for (Entry entry:entries){
@@ -26,6 +26,7 @@ public class FileValidator {
             }
         }
         validateDuplicateId(entries);
+        return entries;
     }
 
 
@@ -153,7 +154,7 @@ public class FileValidator {
                         }
                     }
                 }
-                entry.displayRows();
+                //entry.displayRows();
             }
         }
     }

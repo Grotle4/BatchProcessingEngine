@@ -8,9 +8,11 @@ public class Main {
         String dir = parser.getUserInput();
         FileSearcher searcher = new FileSearcher(dir);
         FileValidator validator = new FileValidator();
+        ProcessingResult processor = new ProcessingResult();
 
         List<Path> files = searcher.findCsvFiles();
-        validator.readCsvFiles(files);
+        List<Entry> entries = validator.readCsvFiles(files);
+        processor.processResult(entries);
 
     }
 }
