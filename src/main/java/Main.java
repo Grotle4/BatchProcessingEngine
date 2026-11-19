@@ -12,7 +12,8 @@ public class Main {
 
         List<Path> files = searcher.findCsvFiles();
         List<Entry> entries = validator.readCsvFiles(files);
-        processor.processResult(entries);
+
+        ProcessingResult.compiledResults results = processor.processResult(entries);
 
     }
 }

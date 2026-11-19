@@ -1,8 +1,5 @@
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,7 +24,7 @@ public class FileSearcher {
         }
 
         try {
-            try (Stream<Path> stream = Files.walk(startPath)){
+            try (Stream<Path> stream = Files.walk(startPath, 1)){
                 List<Path> csvFiles = stream
                         .filter(Files::isRegularFile)
                         .filter(path -> path.toString().toLowerCase().endsWith(".csv"))
@@ -36,6 +33,9 @@ public class FileSearcher {
                 //csvFiles.forEach(System.out::println);
                 return csvFiles;
             }
+        }
+        catch (NoSuchFileException e){
+            return new ArrayList<>();
         }
         catch (IOException e){
             e.printStackTrace();

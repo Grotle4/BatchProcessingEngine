@@ -4,7 +4,12 @@ import java.util.List;
 
 public class ProcessingResult {
 
-    public void processResult(List<Entry> entries){
+    public record compiledResults(
+            List<Row> passedRows,
+            List<Row> failedRows
+    ){}
+
+    public compiledResults processResult(List<Entry> entries){
 
         List<Row> passedRows = new ArrayList<>();
         List<Row> failedRows = new ArrayList<>();
@@ -24,6 +29,8 @@ public class ProcessingResult {
         passedRows.forEach(passedRow -> System.out.println(Arrays.toString(passedRow.getRow())));
         System.out.println("FAILED:");
         failedRows.forEach(failedRow -> System.out.println(Arrays.toString(failedRow.getRow())));
+        return new compiledResults(passedRows, failedRows);
+
     }
 
 }
