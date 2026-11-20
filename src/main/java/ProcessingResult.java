@@ -25,10 +25,10 @@ public class ProcessingResult {
                 }
             }
         }
-        System.out.println("PASSED:");
-        passedRows.forEach(passedRow -> System.out.println(Arrays.toString(passedRow.getRow())));
-        System.out.println("FAILED:");
-        failedRows.forEach(failedRow -> System.out.println(Arrays.toString(failedRow.getRow())));
+//        System.out.println("PASSED:");
+//        passedRows.forEach(passedRow -> System.out.println(Arrays.toString(passedRow.getRow())));
+//        System.out.println("FAILED:");
+//        failedRows.forEach(failedRow -> System.out.println(Arrays.toString(failedRow.getRow())));
         return new compiledResults(passedRows, failedRows);
 
     }

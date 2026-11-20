@@ -9,10 +9,12 @@ import java.util.List;
 
 public class FileValidatorTest {
     private FileValidator validator;
+    private TestingHelper helper;
 
     @BeforeEach
     void setUp(){
         validator = new FileValidator();
+        helper = new TestingHelper();
     }
 
     @Test
@@ -87,6 +89,9 @@ public class FileValidatorTest {
 
         }
 
+        helper.DisplayTestResults(baselineEntries, givenEntries, "Checking to see if our data is the same between entry classes");
+        helper.DisplayTestResults(baselineEntries, givenEntries, "Checking to see if our data is the same between row classes");
+        helper.DisplayTestResults(baselineEntries, givenEntries, "Checking to see if we are picking up invalid entries properly.");
         assertEquals(baselineEntries,givenEntries);
         assertEquals(baselineRows,givenRows);
         assertEquals(testPath2,entries.invalidEntries().getFirst().getOriginalFile());
@@ -98,6 +103,7 @@ public class FileValidatorTest {
         List<Entry> emptyList = new ArrayList<>();
         FileValidator.completedEntries entries = validator.readCsvFiles(files);
 
+        helper.DisplayTestResults(emptyList, entries.validEntries());
         assertEquals(emptyList, entries.validEntries());
     }
 

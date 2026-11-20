@@ -9,10 +9,12 @@ import java.util.List;
 public class ProcessingResultTest {
 
     private ProcessingResult processor;
+    private TestingHelper helper;
 
     @BeforeEach
     void setUp(){
         processor = new ProcessingResult();
+        helper = new TestingHelper();
 
 
     }
@@ -41,6 +43,7 @@ public class ProcessingResultTest {
 
         ProcessingResult.compiledResults baselineResults = new ProcessingResult.compiledResults(baselinePassedRows, baselineFailedRows);
 
+        helper.DisplayTestResults(baselineResults, results);
         assertEquals(baselineResults, results);
     }
 

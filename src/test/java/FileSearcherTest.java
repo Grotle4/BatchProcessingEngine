@@ -9,10 +9,12 @@ import java.util.List;
 public class FileSearcherTest {
 
     private FileSearcher searcher;
+    private TestingHelper helper;
 
     @BeforeEach
     void setUp(){
         searcher = new FileSearcher("src/test/resources");
+        helper = new TestingHelper();
     }
 
     @Test
@@ -22,7 +24,9 @@ public class FileSearcherTest {
         List<Path> expected = new ArrayList<>();
         expected.add(Path.of("src\\test\\resources\\test.csv"));
         expected.add(Path.of("src\\test\\resources\\test2.csv"));
-        assertEquals(expected, result, "Path should find the test csv.");
+
+        helper.DisplayTestResults(expected, result);
+        assertEquals(expected, result);
     }
 
     @Test
@@ -31,7 +35,8 @@ public class FileSearcherTest {
 
         List<Path> result = fakeSearcher.findCsvFiles();
         List<Path> expected = new ArrayList<>();
-        assertEquals(expected, result, "Path should return empty array list");
+        helper.DisplayTestResults(expected, result);
+        assertEquals(expected, result);
     }
 
     @Test
@@ -40,6 +45,7 @@ public class FileSearcherTest {
 
         List<Path> result = fakeSearcher.findCsvFiles();
         List<Path> expected = new ArrayList<>();
-        assertEquals(expected, result, "Path should return empty array list");
+        helper.DisplayTestResults(expected, result);
+        assertEquals(expected, result);
     }
 }
