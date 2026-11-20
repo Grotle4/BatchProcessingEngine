@@ -9,12 +9,12 @@ public class ProcessingResult {
             List<Row> failedRows
     ){}
 
-    public compiledResults processResult(List<Entry> entries){
+    public compiledResults processResult(FileValidator.completedEntries entries){
 
         List<Row> passedRows = new ArrayList<>();
         List<Row> failedRows = new ArrayList<>();
 
-        for (Entry entry:entries){
+        for (Entry entry:entries.validEntries()){
             for(Row row:entry.getRows()){
                 row.roundBalance();
                 if (row.getValidity()){

@@ -28,7 +28,7 @@ public class FileValidatorTest {
         expectedEntries.add(expected);
 
         List<Path> testPaths = List.of(testPath);
-        List<Entry> entries = validator.readCsvFiles(testPaths);
+        FileValidator.completedEntries entries = validator.readCsvFiles(testPaths);
 
         record comparedEntry(
             boolean headerValid,
@@ -49,7 +49,7 @@ public class FileValidatorTest {
         List<comparedRow> baselineRows = new ArrayList<>();
 
 
-        for (Entry given:entries){
+        for (Entry given:entries.validEntries()){
             comparedEntry givenEntry = new comparedEntry(
                     given.getHeaderValidity(),
                     given.getOriginalFile(),
@@ -88,6 +88,15 @@ public class FileValidatorTest {
 
         assertEquals(baselineEntries,givenEntries);
         assertEquals(baselineRows,givenRows);
+    }
+
+    @Test
+    void validateEmptyList(){
+        List<Path> files = new ArrayList<>();
+        List<Entry> emptyList = new ArrayList<>();
+        FileValidator.completedEntries entries = validator.readCsvFiles(files);
+
+        assertEquals(emptyList, entries.validEntries());
     }
 
 }

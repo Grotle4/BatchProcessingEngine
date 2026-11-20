@@ -6,15 +6,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProcessingResultTester {
+public class ProcessingResultTest {
 
     private ProcessingResult processor;
-
-    public record compiledResults(
-            List<Row> passedRows,
-            List<Row> failedRows
-    ){}
-
 
     @BeforeEach
     void setUp(){
@@ -33,8 +27,14 @@ public class ProcessingResultTester {
         Entry entry = new Entry(expectedRows, true, testPath);
         List<Entry> entries = new ArrayList<>();
         entries.add(entry);
+        List<Entry> failedEntries = new ArrayList<>();
+        FileValidator.completedEntries complete = new FileValidator.completedEntries(
+                entries,
+                failedEntries
+        );
 
-        ProcessingResult.compiledResults results = processor.processResult(entries);
+
+        ProcessingResult.compiledResults results = processor.processResult(complete);
 
         List<Row> baselinePassedRows = List.of(content);
         List<Row> baselineFailedRows = List.of(content2);

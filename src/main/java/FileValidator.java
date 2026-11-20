@@ -9,8 +9,16 @@ import java.util.regex.Pattern;
 
 public class FileValidator {
 
-    public List<Entry> readCsvFiles(List<Path> files){
+    public record completedEntries(
+            List<Entry> validEntries,
+            List<Entry> invalidEntries
+    ) {}
+
+
+    public completedEntries readCsvFiles(List<Path> files){
         List<Entry> entries = getRows(files);
+        List<Entry> invalidEntries = new ArrayList<>();
+        List<Entry> validEntries = new ArrayList<>();
 
         for (Entry entry:entries){
             entry.updateHeaderValidity(validateHeader(entry));
@@ -22,11 +30,28 @@ public class FileValidator {
                 //entry.displayRows();
             }
             else {
-                //TODO: append to list of entries that will be written as invalid due to invalid structure
+                invalidEntries.add(entry);
             }
         }
+
         validateDuplicateId(entries);
-        return entries;
+
+        for (Entry entry:entries){
+            if (entry.getHeaderValidity()){
+                validEntries.add(entry);
+            }
+            else {
+                invalidEntries.add(entry);
+            }
+        }
+
+        completedEntries complete = new completedEntries(
+                validEntries,
+                invalidEntries
+                );
+
+
+        return complete;
     }
 
 

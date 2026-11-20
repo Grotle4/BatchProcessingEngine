@@ -11,7 +11,7 @@ public class Main {
         ProcessingResult processor = new ProcessingResult();
 
         List<Path> files = searcher.findCsvFiles();
-        List<Entry> entries = validator.readCsvFiles(files);
+        FileValidator.completedEntries entries = validator.readCsvFiles(files);
 
         ProcessingResult.compiledResults results = processor.processResult(entries);
 
