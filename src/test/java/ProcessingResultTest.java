@@ -42,11 +42,7 @@ public class ProcessingResultTest {
         ProcessingResult.compiledResults baselineResults = new ProcessingResult.compiledResults(baselinePassedRows, baselineFailedRows);
 
         assertEquals(baselineResults, results);
-
-
-
     }
-
 
 
 }

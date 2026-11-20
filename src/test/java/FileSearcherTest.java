@@ -21,6 +21,7 @@ public class FileSearcherTest {
         List<Path> result = searcher.findCsvFiles();
         List<Path> expected = new ArrayList<>();
         expected.add(Path.of("src\\test\\resources\\test.csv"));
+        expected.add(Path.of("src\\test\\resources\\test2.csv"));
         assertEquals(expected, result, "Path should find the test csv.");
     }
 

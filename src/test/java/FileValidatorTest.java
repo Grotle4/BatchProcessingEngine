@@ -18,6 +18,7 @@ public class FileValidatorTest {
     @Test
     void validateCsvProcessing(){
         Path testPath = Path.of("src/test/resources/test.csv");
+        Path testPath2 = Path.of("src/test/resources/test2.csv");
 
         Row content = new Row(new String[]{"1030", "test", "user", "test@gmail.com", "405"});
         Row content2 = new Row(new String[]{"1031", "test1", "user", "test@gmail.com", "405"});
@@ -27,7 +28,7 @@ public class FileValidatorTest {
         List<Entry> expectedEntries = new ArrayList<>();
         expectedEntries.add(expected);
 
-        List<Path> testPaths = List.of(testPath);
+        List<Path> testPaths = List.of(testPath, testPath2);
         FileValidator.completedEntries entries = validator.readCsvFiles(testPaths);
 
         record comparedEntry(
@@ -88,6 +89,7 @@ public class FileValidatorTest {
 
         assertEquals(baselineEntries,givenEntries);
         assertEquals(baselineRows,givenRows);
+        assertEquals(testPath2,entries.invalidEntries().getFirst().getOriginalFile());
     }
 
     @Test
