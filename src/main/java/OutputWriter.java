@@ -3,17 +3,25 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Stream;
 
 public class OutputWriter {
 
+    private Instant timestamp = Instant.now();
+    private String filenameTimestamp = generateTimestamp(1);
+    private String reportTimestamp = generateTimestamp(2);
+
     public void writeCSVFiles(ProcessingResult.compiledResults results){
 
-        Path passedCsv = Path.of("output\\passed\\passed.csv");
-        Path failedCsv = Path.of("output\\failed\\failed.csv");
+        Path passedCsv = Path.of("output\\passed\\PassedRecords_" + filenameTimestamp + ".csv");
+        Path failedCsv = Path.of("output\\failed\\FailedRecords_" + filenameTimestamp + ".csv");
 
 
         try (BufferedWriter writer = Files.newBufferedWriter(passedCsv, StandardCharsets.UTF_8)){
@@ -55,7 +63,7 @@ public class OutputWriter {
 
     public void writeInvalidFilesCSV(List<Entry> entries){
         if (!entries.isEmpty()){
-            Path invalidFilesCsv = Path.of("output\\invalid\\invalid.csv");
+            Path invalidFilesCsv = Path.of("output\\invalid\\InvalidFiles_" + filenameTimestamp + ".csv");
             try (BufferedWriter writer = Files.newBufferedWriter(invalidFilesCsv, StandardCharsets.UTF_8)) {
                 String[] header = {"Filename", "Failure Reasons"};
                 writer.write(String.join(",", header));
@@ -85,7 +93,7 @@ public class OutputWriter {
     }
 
     public void writeSummaryReport(FileValidator.completedEntries entries, ProcessingResult.compiledResults results){
-        Path summaryPath = Path.of("output\\summary\\summary.txt");
+        Path summaryPath = Path.of("output\\summary\\SummaryReport_" + filenameTimestamp + ".txt");
         int successfulFiles = entries.validEntries().size();
         int failedFiles = entries.invalidEntries().size();
         int totalFiles =  successfulFiles + failedFiles;
@@ -93,7 +101,7 @@ public class OutputWriter {
 
         try (BufferedWriter writer = Files.newBufferedWriter(summaryPath, StandardCharsets.UTF_8)){
             String[] content = {
-                    "REPORT FOR DATE",
+                    "REPORT FOR " + reportTimestamp.toUpperCase(),
                     "",
                     "Total found files: " + totalFiles,
                     "Total successful files: " + successfulFiles,
@@ -140,5 +148,21 @@ public class OutputWriter {
         }
         return Status.NO_FILES_FOUND.statusMessage;
     }
+
+    private String generateTimestamp(int idx){
+
+        if (idx == 1){ // Get string for our filename
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMddyyHHmmss")
+                    .withZone(ZoneId.systemDefault());
+            return formatter.format(timestamp);
+        }
+        else if (idx == 2){ // Get string for the report
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM dd yyyy hh:mm:ss a")
+                    .withZone(ZoneId.systemDefault());
+            return formatter.format(timestamp);
+        }
+        return "Invalid return code";
+    }
+
 
 }
