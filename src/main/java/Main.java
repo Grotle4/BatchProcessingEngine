@@ -9,11 +9,14 @@ public class Main {
         FileSearcher searcher = new FileSearcher(dir);
         FileValidator validator = new FileValidator();
         ProcessingResult processor = new ProcessingResult();
+        OutputWriter writer = new OutputWriter();
 
         List<Path> files = searcher.findCsvFiles();
         FileValidator.completedEntries entries = validator.readCsvFiles(files);
 
         ProcessingResult.compiledResults results = processor.processResult(entries);
+
+        writer.writeCSVFiles(results);
 
     }
 }

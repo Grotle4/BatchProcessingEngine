@@ -27,7 +27,7 @@ public class FileValidator {
                 entry.removeHeader();
                 validateColCount(entry);
                 validateColumns(entry);
-                //entry.displayRows();
+
             }
             else {
                 invalidEntries.add(entry);
@@ -37,6 +37,7 @@ public class FileValidator {
         validateDuplicateId(entries);
 
         for (Entry entry:entries){
+            entry.displayRows();
             if (entry.getHeaderValidity()){
                 validEntries.add(entry);
             }
