@@ -71,8 +71,74 @@ public class OutputWriter {
                 e.printStackTrace();
             }
         }
+    }
+
+    public enum Status {
+        COMPLETE("Complete"), COMPLETE_WITH_ERRORS("Completed with errors"), ERROR("Error"), NO_FILES_FOUND("No files found");
+
+        private final String statusMessage;
+
+        Status(String statusMessage) {
+
+            this.statusMessage = statusMessage;
+        }
+    }
+
+    public void writeSummaryReport(FileValidator.completedEntries entries, ProcessingResult.compiledResults results){
+        Path summaryPath = Path.of("output\\summary\\summary.txt");
+        int successfulFiles = entries.validEntries().size();
+        int failedFiles = entries.invalidEntries().size();
+        int totalFiles =  successfulFiles + failedFiles;
+        int totalRecords = results.failedRows().size() + results.passedRows().size();
+
+        try (BufferedWriter writer = Files.newBufferedWriter(summaryPath, StandardCharsets.UTF_8)){
+            String[] content = {
+                    "REPORT FOR DATE",
+                    "",
+                    "Total found files: " + totalFiles,
+                    "Total successful files: " + successfulFiles,
+                    "Total rejected files: " + failedFiles,
+                    "",
+                    "Total records found: " + totalRecords,
+                    "Total successful records: " + results.passedRows().size(),
+                    "Total failed records: " + results.failedRows().size(),
+                    "",
+                    "Status: " + getReportStatus(successfulFiles, failedFiles, results)
+            };
+            for (String row:content){
+                writer.write(row);
+                writer.newLine();
+            }
+        }
 
 
+        catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    private String getReportStatus(int passedFiles, int failedFiles, ProcessingResult.compiledResults results){
+        int passedRows = results.passedRows().size();
+        int failedRows = results.failedRows().size();
+
+        if (passedFiles == 0 && failedFiles > 0){
+            return Status.ERROR.statusMessage;
+        }
+        else if (passedFiles > 0 && failedFiles == 0){
+            if (passedRows == 0 && failedRows > 0){
+                return Status.COMPLETE_WITH_ERRORS.statusMessage;
+            }
+            else if (passedRows > 0 && failedRows == 0){
+                return Status.COMPLETE.statusMessage;
+            }
+            else if (passedRows > 0){
+                return Status.COMPLETE_WITH_ERRORS.statusMessage;
+            }
+        }
+        else{
+            return Status.COMPLETE_WITH_ERRORS.statusMessage;
+        }
+        return Status.NO_FILES_FOUND.statusMessage;
     }
 
 }

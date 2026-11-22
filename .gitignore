@@ -41,3 +41,4 @@ build/
 
 ### Output CSVs ###
 *.csv
+*.txt

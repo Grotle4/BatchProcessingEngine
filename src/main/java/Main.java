@@ -18,6 +18,7 @@ public class Main {
 
         writer.writeCSVFiles(results);
         writer.writeInvalidFilesCSV(entries.invalidEntries());
+        writer.writeSummaryReport(entries,results);
 
     }
 }
