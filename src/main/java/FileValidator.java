@@ -41,9 +41,6 @@ public class FileValidator {
             if (entry.getHeaderValidity()){
                 validEntries.add(entry);
             }
-            else {
-                invalidEntries.add(entry);
-            }
         }
 
         completedEntries complete = new completedEntries(
@@ -174,11 +171,10 @@ public class FileValidator {
             if (entry.getHeaderValidity()){
                 for (int i = 0; i < entry.getRows().size(); i++){
                     Row currentRow = entry.getRows().get(i);
-                    if (currentRow.getValidity()){
-                        if (!uniqueIds.add(currentRow.getRow()[0])){
-                            currentRow.addFailureReason("Duplicate unique id found in prior entry.");
-                        }
+                    if (!uniqueIds.add(currentRow.getRow()[0])){
+                        currentRow.addFailureReason("Duplicate unique id found in prior entry.");
                     }
+
                 }
                 //entry.displayRows();
             }

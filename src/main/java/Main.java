@@ -17,6 +17,7 @@ public class Main {
         ProcessingResult.compiledResults results = processor.processResult(entries);
 
         writer.writeCSVFiles(results);
+        writer.writeInvalidFilesCSV(entries.invalidEntries());
 
     }
 }

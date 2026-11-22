@@ -50,13 +50,29 @@ public class OutputWriter {
         catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
 
+    public void writeInvalidFilesCSV(List<Entry> entries){
+        if (!entries.isEmpty()){
+            Path invalidFilesCsv = Path.of("output\\invalid\\invalid.csv");
+            try (BufferedWriter writer = Files.newBufferedWriter(invalidFilesCsv, StandardCharsets.UTF_8)) {
+                String[] header = {"Filename", "Failure Reasons"};
+                writer.write(String.join(",", header));
+                writer.newLine();
+                for (Entry entry:entries) {
+                    String[] csvRow = {entry.getOriginalFile().toString(), entry.getHeaderFailureReason()};
 
-
+                    writer.write(String.join(",", csvRow));
+                    writer.newLine();
+                }
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
 
     }
-
 
 }
