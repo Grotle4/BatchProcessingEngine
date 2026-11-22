@@ -25,8 +25,14 @@ public class FileValidator {
 
             if (entry.getHeaderValidity()){
                 entry.removeHeader();
-                validateColCount(entry);
-                validateColumns(entry);
+                if (!entry.getRows().isEmpty()){
+                    validateColCount(entry);
+                    validateColumns(entry);
+                }
+                else{
+                    invalidEntries.add(entry);
+                    entry.assignHeaderFailure("No content present in file besides header.");
+                }
 
             }
             else {
