@@ -33,7 +33,6 @@ public class FileValidator {
                     invalidEntries.add(entry);
                     entry.assignHeaderFailure("No content present in file besides header.");
                 }
-
             }
             else {
                 invalidEntries.add(entry);
@@ -174,16 +173,16 @@ public class FileValidator {
         Set<String> uniqueIds = new HashSet<>();
 
         for (Entry entry:entries){
-            if (entry.getHeaderValidity()){
-                for (int i = 0; i < entry.getRows().size(); i++){
-                    Row currentRow = entry.getRows().get(i);
+            for (int i = 0; i < entry.getRows().size(); i++){
+                Row currentRow = entry.getRows().get(i);
+                if (currentRow.getValidity()) {
                     if (!uniqueIds.add(currentRow.getRow()[0])){
                         currentRow.addFailureReason("Duplicate unique id found in prior entry.");
                     }
-
                 }
-                //entry.displayRows();
+
             }
+                //entry.displayRows();
         }
     }
 
