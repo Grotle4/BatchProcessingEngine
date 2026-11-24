@@ -37,16 +37,14 @@ public class Row {
     }
 
     public void roundBalance(){
-        for (int i = 1; i < row.length; i++){
-            try{
-                BigDecimal balance = new BigDecimal(row[i].trim());
-                BigDecimal rounded = balance.setScale(2, RoundingMode.DOWN);
-                String roundedStr = rounded.toString();
-                row[i] = roundedStr;
-            }
-            catch (NumberFormatException e){
+        try{
+            BigDecimal balance = new BigDecimal(row[4].trim());
+            BigDecimal rounded = balance.setScale(2, RoundingMode.HALF_UP);
+            String roundedStr = rounded.toPlainString();
+            row[4] = roundedStr;
+        }
+        catch (NumberFormatException | ArrayIndexOutOfBoundsException e){
 
-            }
         }
     }
 }

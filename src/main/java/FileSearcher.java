@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -28,7 +29,13 @@ public class FileSearcher {
                 List<Path> csvFiles = stream
                         .filter(Files::isRegularFile)
                         .filter(path -> path.toString().toLowerCase().endsWith(".csv"))
-                        .collect(Collectors.toList());
+                        .collect(Collectors.toList())
+                        .stream().sorted(Comparator.comparing(
+                                path -> path.getFileName().toString(),
+                                String.CASE_INSENSITIVE_ORDER
+                        )).toList();
+
+
 
                 //csvFiles.forEach(System.out::println);
                 return csvFiles;
