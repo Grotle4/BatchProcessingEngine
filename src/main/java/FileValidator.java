@@ -74,7 +74,7 @@ public class FileValidator {
 
             try (BufferedReader br = new BufferedReader(new FileReader(filepath))){
                 while ((line = br.readLine()) != null){
-                    String[] row = line.split(delim);
+                    String[] row = line.split(delim, -1);
                     Row entryRow = new Row(row);
                     entryRow.assignRowNum(rowNum);
                     rows.add(entryRow);
