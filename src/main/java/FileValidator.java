@@ -44,7 +44,9 @@ public class FileValidator {
         for (Entry entry:entries){
             entry.displayRows();
             if (entry.getHeaderValidity()){
-                validEntries.add(entry);
+                if (entry.getRows().size() > 0){
+                    validEntries.add(entry);
+                }
             }
         }
 
