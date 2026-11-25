@@ -19,9 +19,9 @@ public class FileSearcherTest {
 
     @Test
     void testFindingPath(){
-        String cwd = System.getProperty("user.dir");
         List<Path> result = searcher.findCsvFiles();
         List<Path> expected = new ArrayList<>();
+        expected.add(Path.of("src\\test\\resources\\atest.csv"));
         expected.add(Path.of("src\\test\\resources\\test.csv"));
         expected.add(Path.of("src\\test\\resources\\test2.csv"));
 
@@ -48,4 +48,27 @@ public class FileSearcherTest {
         helper.DisplayTestResults(expected, result);
         assertEquals(expected, result);
     }
+
+    @Test
+    void checkDirectoryWithNoCsvs(){
+        FileSearcher fakeSearcher = new FileSearcher("src/test/resources/fakeDirectory");
+
+        List<Path> result = fakeSearcher.findCsvFiles();
+        List<Path> expected = new ArrayList<>();
+        helper.DisplayTestResults(expected, result);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    void checkForAlphabeticalSorting(){
+        List<Path> expected = new ArrayList<>();
+        expected.add(Path.of("src\\test\\resources\\atest.csv"));
+        expected.add(Path.of("src\\test\\resources\\test.csv"));
+        expected.add(Path.of("src\\test\\resources\\test2.csv"));
+        List<Path> result = searcher.findCsvFiles();
+        helper.DisplayTestResults(expected, result);
+        assertEquals(expected,result);
+    }
+
+
 }
