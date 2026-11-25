@@ -15,8 +15,6 @@ public class ProcessingResultTest {
     void setUp(){
         processor = new ProcessingResult();
         helper = new TestingHelper();
-
-
     }
 
     @Test

@@ -107,4 +107,49 @@ public class FileValidatorTest {
         assertEquals(emptyList, entries.validEntries());
     }
 
+    @Test
+    void validateEmptyCsv(){
+
+    }
+
+    @Test
+    void validateHeaderOnlyCsv(){
+
+    }
+
+    @Test
+    void validateMissingColumns(){
+
+    }
+
+    @Test
+    void validateExtraColumns(){
+
+    }
+
+    @Test
+    void validateTrailingEmptyFields(){
+
+    }
+
+    @Test
+    void validateInvalidCustomerId(){
+
+    }
+
+    @Test
+    void validateInvalidAccountBalance(){
+
+    }
+
+    @Test
+    void validateDuplicateIds(){
+
+    }
+
+    @Test
+    void validateInvalidRecordReservingId(){
+
+    }
+
 }

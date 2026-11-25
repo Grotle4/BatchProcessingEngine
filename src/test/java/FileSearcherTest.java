@@ -21,7 +21,8 @@ public class FileSearcherTest {
     void testFindingPath(){
         List<Path> result = searcher.findCsvFiles();
         List<Path> expected = new ArrayList<>();
-        expected.add(Path.of("src\\test\\resources\\atest.csv"));
+        expected.add(Path.of("src\\test\\resources\\empty.csv"));
+        expected.add(Path.of("src\\test\\resources\\headerOnly.csv"));
         expected.add(Path.of("src\\test\\resources\\test.csv"));
         expected.add(Path.of("src\\test\\resources\\test2.csv"));
 
@@ -62,7 +63,8 @@ public class FileSearcherTest {
     @Test
     void checkForAlphabeticalSorting(){
         List<Path> expected = new ArrayList<>();
-        expected.add(Path.of("src\\test\\resources\\atest.csv"));
+        expected.add(Path.of("src\\test\\resources\\empty.csv"));
+        expected.add(Path.of("src\\test\\resources\\headerOnly.csv"));
         expected.add(Path.of("src\\test\\resources\\test.csv"));
         expected.add(Path.of("src\\test\\resources\\test2.csv"));
         List<Path> result = searcher.findCsvFiles();
