@@ -109,12 +109,99 @@ public class FileValidatorTest {
 
     @Test
     void validateEmptyCsv(){
+        Path testCase = Path.of("src\\test\\resources\\empty.csv");
+        List<Row> expectedRows = new ArrayList<>();
+        Entry expected = new Entry(expectedRows,false,testCase);
+        expected.assignHeaderFailure("File is blank.");
+        expected.updateHeaderValidity(false);
+
+        List<Path> testCaseList = List.of(testCase);
+
+        FileValidator.completedEntries entries = validator.readCsvFiles(testCaseList);
+
+        record entryComparison(
+            List<Row> rows,
+            boolean validity,
+            String reason
+        ){}
+
+        List<entryComparison> foundList = new ArrayList<>();
+        List<entryComparison> expectedList = new ArrayList<>();
+
+
+        for(Entry entry:entries.invalidEntries()){
+            entryComparison foundRecord = new entryComparison(
+              entry.getRows(),
+              entry.getHeaderValidity(),
+              entry.getHeaderFailureReason()
+            );
+            foundList.add(foundRecord);
+        }
+
+        entryComparison expectedEntry = new entryComparison(
+            expected.getRows(),
+            expected.getHeaderValidity(),
+            expected.getHeaderFailureReason()
+        );
+
+        expectedList.add(expectedEntry);
+        helper.DisplayTestResults(expectedList, foundList);
+        assertEquals(expectedList, foundList);
 
     }
 
     @Test
     void validateHeaderOnlyCsv(){
+        Path testCase = Path.of("src\\test\\resources\\headerOnly.csv");
+        String[] content = {"customerId","firstName","lastName","email","accountBalance"};
+        Row expectedRow = new Row(content);
+        List<Row> expectedRows = List.of(expectedRow);
+        Entry expected = new Entry(expectedRows,false,testCase);
+        expected.assignHeaderFailure("No content present in file besides header.");
+        expected.updateHeaderValidity(false);
 
+        List<Path> testCaseList = List.of(testCase);
+
+        FileValidator.completedEntries entries = validator.readCsvFiles(testCaseList);
+
+        record rowComparison(
+            String [] row
+        ){}
+
+        record entryComparison(
+                List<rowComparison> rows,
+                boolean validity,
+                String reason
+        ){}
+
+        List<entryComparison> foundList = new ArrayList<>();
+        List<entryComparison> expectedList = new ArrayList<>();
+        List<rowComparison> foundRecordRows = new ArrayList<>();
+        List<rowComparison> expectedRecordRows = new ArrayList<>();
+
+
+        for(Entry entry:entries.invalidEntries()){
+            for (Row row:entry.getRows()){
+                rowComparison foundRow = new rowComparison(row.getRow());
+                foundRecordRows.add(foundRow);
+            }
+            entryComparison foundRecord = new entryComparison(
+                    foundRecordRows,
+                    entry.getHeaderValidity(),
+                    entry.getHeaderFailureReason()
+            );
+            foundList.add(foundRecord);
+        }
+
+        entryComparison expectedEntry = new entryComparison(
+                expectedRecordRows,
+                expected.getHeaderValidity(),
+                expected.getHeaderFailureReason()
+        );
+
+        expectedList.add(expectedEntry);
+        helper.DisplayTestResults(expectedList, foundList);
+        assertEquals(expectedList, foundList);
     }
 
     @Test

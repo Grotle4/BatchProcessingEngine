@@ -32,6 +32,7 @@ public class FileValidator {
                 else{
                     invalidEntries.add(entry);
                     entry.assignHeaderFailure("No content present in file besides header.");
+                    entry.updateHeaderValidity(false);
                 }
             }
             else {
