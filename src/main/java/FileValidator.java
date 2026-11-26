@@ -43,7 +43,6 @@ public class FileValidator {
         validateDuplicateId(entries);
 
         for (Entry entry:entries){
-            entry.displayRows();
             if (entry.getHeaderValidity()){
                 if (entry.getRows().size() > 0){
                     validEntries.add(entry);

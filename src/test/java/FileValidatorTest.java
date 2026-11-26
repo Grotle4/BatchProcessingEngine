@@ -24,8 +24,12 @@ public class FileValidatorTest {
 
         Row content = new Row(new String[]{"1030", "test", "user", "test@gmail.com", "405"});
         Row content2 = new Row(new String[]{"1031", "test1", "user", "test@gmail.com", "405"});
+        Row content3 = new Row(new String[]{"1032", "test", "user", "test@gmail.com"});
+        Row content4 = new Row(new String[]{"1033", "test", "user", "test@gmail.com", "405", ""});
         content2.addFailureReason("Invalid character found in first name, cannot contain any symbols or numbers except \"-\", \"'\" or \".\".");
-        List<Row> expectedRows = List.of(content, content2);
+        content3.addFailureReason("Invalid column size, has " + content3.getRow().length + " columns.");
+        content4.addFailureReason("Invalid column size, has " + content4.getRow().length + " columns.");
+        List<Row> expectedRows = List.of(content, content2, content3, content4);
         Entry expected = new Entry(expectedRows, true, testPath);
         List<Entry> expectedEntries = new ArrayList<>();
         expectedEntries.add(expected);
@@ -131,17 +135,17 @@ public class FileValidatorTest {
 
         for(Entry entry:entries.invalidEntries()){
             entryComparison foundRecord = new entryComparison(
-              entry.getRows(),
-              entry.getHeaderValidity(),
-              entry.getHeaderFailureReason()
+                    entry.getRows(),
+                    entry.getHeaderValidity(),
+                    entry.getHeaderFailureReason()
             );
             foundList.add(foundRecord);
         }
 
         entryComparison expectedEntry = new entryComparison(
-            expected.getRows(),
-            expected.getHeaderValidity(),
-            expected.getHeaderFailureReason()
+                expected.getRows(),
+                expected.getHeaderValidity(),
+                expected.getHeaderFailureReason()
         );
 
         expectedList.add(expectedEntry);
@@ -153,6 +157,9 @@ public class FileValidatorTest {
     @Test
     void validateHeaderOnlyCsv(){
         Path testCase = Path.of("src\\test\\resources\\headerOnly.csv");
+        List<Path> testCaseList = List.of(testCase);
+        FileValidator.completedEntries entries = validator.readCsvFiles(testCaseList);
+
         String[] content = {"customerId","firstName","lastName","email","accountBalance"};
         Row expectedRow = new Row(content);
         List<Row> expectedRows = List.of(expectedRow);
@@ -160,9 +167,7 @@ public class FileValidatorTest {
         expected.assignHeaderFailure("No content present in file besides header.");
         expected.updateHeaderValidity(false);
 
-        List<Path> testCaseList = List.of(testCase);
 
-        FileValidator.completedEntries entries = validator.readCsvFiles(testCaseList);
 
         record rowComparison(
             String [] row
@@ -206,11 +211,64 @@ public class FileValidatorTest {
 
     @Test
     void validateMissingColumns(){
+        Path testCase = Path.of("src\\test\\resources\\test.csv");
+        List<Path> testCaseList = List.of(testCase);
+        FileValidator.completedEntries entries = validator.readCsvFiles(testCaseList);
+
+        record rowComparison(
+                String content,
+                boolean validity,
+                String reason
+        ){}
+        String[] expectedArray = {"1032","test","user","test@gmail.com"};
+        String expectedContent = Arrays.toString(expectedArray);
+        rowComparison expectedRowCompare = new rowComparison(
+                expectedContent,
+                false,
+                "Invalid column size, has " + expectedArray.length + " columns."
+        );
+
+        Entry entry = entries.validEntries().getFirst();
+        Row row = entry.getRows().get(2);
+        rowComparison foundRowCompare = new rowComparison(
+                Arrays.toString(row.getRow()),
+                row.getValidity(),
+                row.getFailureReasons().getFirst()
+        );
+        helper.DisplayTestResults(expectedRowCompare, foundRowCompare);
+        assertEquals(expectedRowCompare, foundRowCompare);
+
 
     }
 
     @Test
     void validateExtraColumns(){
+        Path testCase = Path.of("src\\test\\resources\\test.csv");
+        List<Path> testCaseList = List.of(testCase);
+        FileValidator.completedEntries entries = validator.readCsvFiles(testCaseList);
+
+        record rowComparison(
+                String content,
+                boolean validity,
+                String reason
+        ){}
+        String[] expectedArray = {"1033","test","user","test@gmail.com", "405", ""};
+        String expectedContent = Arrays.toString(expectedArray);
+        rowComparison expectedRowCompare = new rowComparison(
+                expectedContent,
+                false,
+                "Invalid column size, has " + expectedArray.length + " columns."
+        );
+
+        Entry entry = entries.validEntries().getFirst();
+        Row row = entry.getRows().get(3);
+        rowComparison foundRowCompare = new rowComparison(
+                Arrays.toString(row.getRow()),
+                row.getValidity(),
+                row.getFailureReasons().getFirst()
+        );
+        helper.DisplayTestResults(expectedRowCompare, foundRowCompare);
+        assertEquals(expectedRowCompare, foundRowCompare);
 
     }
 
