@@ -10,7 +10,6 @@ public class ProcessingResult {
     ){}
 
     public compiledResults processResult(FileValidator.completedEntries entries){
-
         List<Row> passedRows = new ArrayList<>();
         List<Row> failedRows = new ArrayList<>();
 
@@ -32,5 +31,6 @@ public class ProcessingResult {
         return new compiledResults(passedRows, failedRows);
 
     }
+
 
 }

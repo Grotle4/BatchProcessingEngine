@@ -157,7 +157,7 @@ public class OutputWriter {
             return formatter.format(timestamp);
         }
         else if (idx == 2){ // Get string for the report
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM dd yyyy hh:mm:ss a")
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy hh:mm:ss a")
                     .withZone(ZoneId.systemDefault());
             return formatter.format(timestamp);
         }
