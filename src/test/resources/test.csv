@@ -2,4 +2,9 @@ customerId|firstName|lastName|email|accountBalance
 1030|test|user|test@gmail.com|405
 1031|test1|user|test@gmail.com|405
 1032|test|user|test@gmail.com
-1033|test|user|test@gmail.com|405|
+1033|test|user|test@gmail.com|405|test
+1034|test|user|test@gmail.com|405|
+test|test|user|test@gmail.com|405
+1035|test|user|test@gmail.com|test
+1030|test|user|test@gmail.com|405
+1032|test|user|test@gmail.com|405

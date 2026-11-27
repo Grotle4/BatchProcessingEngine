@@ -75,9 +75,11 @@ public class FileValidator {
             try (BufferedReader br = new BufferedReader(new FileReader(filepath))){
                 while ((line = br.readLine()) != null){
                     String[] row = line.split(delim, -1);
-                    Row entryRow = new Row(row);
-                    entryRow.assignRowNum(rowNum);
-                    rows.add(entryRow);
+                    if (row.length != 0){
+                        Row entryRow = new Row(row);
+                        entryRow.assignRowNum(rowNum);
+                        rows.add(entryRow);
+                    }
                     rowNum++;
                 }
             }
@@ -113,7 +115,12 @@ public class FileValidator {
     private void validateColCount(Entry entry){
         for (Row row:entry.getRows()){
             if (row.getRow().length != 5){
-                row.addFailureReason("Invalid column size, has " + row.getRow().length + " columns.");
+                if (row.getRow().length == 1 && row.getRow()[0].isEmpty()){
+                    row.addFailureReason("Row is empty.");
+                }
+                else {
+                    row.addFailureReason("Invalid column size, has " + row.getRow().length + " columns.");
+                }
             }
         }
     }

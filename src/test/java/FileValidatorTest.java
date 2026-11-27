@@ -22,14 +22,24 @@ public class FileValidatorTest {
         Path testPath = Path.of("src/test/resources/test.csv");
         Path testPath2 = Path.of("src/test/resources/test2.csv");
 
-        Row content = new Row(new String[]{"1030", "test", "user", "test@gmail.com", "405"});
-        Row content2 = new Row(new String[]{"1031", "test1", "user", "test@gmail.com", "405"});
-        Row content3 = new Row(new String[]{"1032", "test", "user", "test@gmail.com"});
-        Row content4 = new Row(new String[]{"1033", "test", "user", "test@gmail.com", "405", ""});
+        Row content = new Row(new String[]{"1030", "test", "user", "test@gmail.com", "405"}); // Correct row
+        Row content2 = new Row(new String[]{"1031", "test1", "user", "test@gmail.com", "405"}); // Invalid first name
+        Row content3 = new Row(new String[]{"1032", "test", "user", "test@gmail.com"}); // Less columns than required
+        Row content4 = new Row(new String[]{"1033", "test", "user", "test@gmail.com", "405", "test"}); // More content than required
+        Row content5 = new Row(new String[]{"1034", "test", "user", "test@gmail.com", "405", ""}); // Trailing empty field
+        Row content6 = new Row(new String[]{"test", "test", "user", "test@gmail.com", "405"}); // Incorrect ID
+        Row content7 = new Row(new String[]{"1035", "test", "user", "test@gmail.com", "test"}); // Incorrect balance
+        Row content8 = new Row(new String[]{"1030", "test", "user", "test@gmail.com", "405"}); // Dupe id
+        Row content9 = new Row(new String[]{"1032", "test", "user", "test@gmail.com", "405"}); // First 1032 is invalid, this one is valid
         content2.addFailureReason("Invalid character found in first name, cannot contain any symbols or numbers except \"-\", \"'\" or \".\".");
         content3.addFailureReason("Invalid column size, has " + content3.getRow().length + " columns.");
         content4.addFailureReason("Invalid column size, has " + content4.getRow().length + " columns.");
-        List<Row> expectedRows = List.of(content, content2, content3, content4);
+        content5.addFailureReason("Invalid column size, has " + content5.getRow().length + " columns.");
+        content6.addFailureReason("Unique ID column is not a sequence of whole numbers.");
+        content7.addFailureReason("Account balance is not a valid number.");
+        content8.addFailureReason("Duplicate unique id found in prior entry.");
+
+        List<Row> expectedRows = List.of(content, content2, content3, content4, content5, content6, content7, content8, content9);
         Entry expected = new Entry(expectedRows, true, testPath);
         List<Entry> expectedEntries = new ArrayList<>();
         expectedEntries.add(expected);
@@ -252,7 +262,7 @@ public class FileValidatorTest {
                 boolean validity,
                 String reason
         ){}
-        String[] expectedArray = {"1033","test","user","test@gmail.com", "405", ""};
+        String[] expectedArray = {"1033","test","user","test@gmail.com", "405", "test"};
         String expectedContent = Arrays.toString(expectedArray);
         rowComparison expectedRowCompare = new rowComparison(
                 expectedContent,
@@ -274,27 +284,149 @@ public class FileValidatorTest {
 
     @Test
     void validateTrailingEmptyFields(){
+        Path testCase = Path.of("src\\test\\resources\\test.csv");
+        List<Path> testCaseList = List.of(testCase);
+        FileValidator.completedEntries entries = validator.readCsvFiles(testCaseList);
 
+        record rowComparison(
+                String content,
+                boolean validity,
+                String reason
+        ){}
+        String[] expectedArray = {"1034","test","user","test@gmail.com", "405", ""};
+        String expectedContent = Arrays.toString(expectedArray);
+        rowComparison expectedRowCompare = new rowComparison(
+                expectedContent,
+                false,
+                "Invalid column size, has " + expectedArray.length + " columns."
+        );
+
+        Entry entry = entries.validEntries().getFirst();
+        Row row = entry.getRows().get(4);
+        rowComparison foundRowCompare = new rowComparison(
+                Arrays.toString(row.getRow()),
+                row.getValidity(),
+                row.getFailureReasons().getFirst()
+        );
+        helper.DisplayTestResults(expectedRowCompare, foundRowCompare);
+        assertEquals(expectedRowCompare, foundRowCompare);
     }
 
     @Test
     void validateInvalidCustomerId(){
+        Path testCase = Path.of("src\\test\\resources\\test.csv");
+        List<Path> testCaseList = List.of(testCase);
+        FileValidator.completedEntries entries = validator.readCsvFiles(testCaseList);
 
+        record rowComparison(
+                String content,
+                boolean validity,
+                String reason
+        ){}
+        String[] expectedArray = {"test","test","user","test@gmail.com", "405"};
+        String expectedContent = Arrays.toString(expectedArray);
+        rowComparison expectedRowCompare = new rowComparison(
+                expectedContent,
+                false,
+                "Unique ID column is not a sequence of whole numbers."
+        );
+
+        Entry entry = entries.validEntries().getFirst();
+        Row row = entry.getRows().get(5);
+        rowComparison foundRowCompare = new rowComparison(
+                Arrays.toString(row.getRow()),
+                row.getValidity(),
+                row.getFailureReasons().getFirst()
+        );
+        helper.DisplayTestResults(expectedRowCompare, foundRowCompare);
+        assertEquals(expectedRowCompare, foundRowCompare);
     }
 
     @Test
     void validateInvalidAccountBalance(){
+        Path testCase = Path.of("src\\test\\resources\\test.csv");
+        List<Path> testCaseList = List.of(testCase);
+        FileValidator.completedEntries entries = validator.readCsvFiles(testCaseList);
 
+        record rowComparison(
+                String content,
+                boolean validity,
+                String reason
+        ){}
+        String[] expectedArray = {"1035","test","user","test@gmail.com", "test"};
+        String expectedContent = Arrays.toString(expectedArray);
+        rowComparison expectedRowCompare = new rowComparison(
+                expectedContent,
+                false,
+                "Account balance is not a valid number."
+        );
+
+        Entry entry = entries.validEntries().getFirst();
+        Row row = entry.getRows().get(6);
+        rowComparison foundRowCompare = new rowComparison(
+                Arrays.toString(row.getRow()),
+                row.getValidity(),
+                row.getFailureReasons().getFirst()
+        );
+        helper.DisplayTestResults(expectedRowCompare, foundRowCompare);
+        assertEquals(expectedRowCompare, foundRowCompare);
     }
 
     @Test
     void validateDuplicateIds(){
+        Path testCase = Path.of("src\\test\\resources\\test.csv");
+        List<Path> testCaseList = List.of(testCase);
+        FileValidator.completedEntries entries = validator.readCsvFiles(testCaseList);
 
+        record rowComparison(
+                String content,
+                boolean validity,
+                String reason
+        ){}
+        String[] expectedArray = {"1030","test","user","test@gmail.com", "405"};
+        String expectedContent = Arrays.toString(expectedArray);
+        rowComparison expectedRowCompare = new rowComparison(
+                expectedContent,
+                false,
+                "Duplicate unique id found in prior entry."
+        );
+
+        Entry entry = entries.validEntries().getFirst();
+        Row row = entry.getRows().get(7);
+        rowComparison foundRowCompare = new rowComparison(
+                Arrays.toString(row.getRow()),
+                row.getValidity(),
+                row.getFailureReasons().getFirst()
+        );
+        helper.DisplayTestResults(expectedRowCompare, foundRowCompare);
+        assertEquals(expectedRowCompare, foundRowCompare);
     }
 
     @Test
     void validateInvalidRecordReservingId(){
+        Path testCase = Path.of("src\\test\\resources\\test.csv");
+        List<Path> testCaseList = List.of(testCase);
+        FileValidator.completedEntries entries = validator.readCsvFiles(testCaseList);
 
+        record rowComparison(
+                String content,
+                boolean validity
+        ){}
+        String[] expectedArray = {"1032","test","user","test@gmail.com", "405"};
+        String expectedContent = Arrays.toString(expectedArray);
+        rowComparison expectedRowCompare = new rowComparison(
+                expectedContent,
+                true
+        );
+
+        Entry entry = entries.validEntries().getFirst();
+        Row row = entry.getRows().get(8);
+        rowComparison foundRowCompare = new rowComparison(
+                Arrays.toString(row.getRow()),
+                row.getValidity()
+        );
+        helper.DisplayTestResults(expectedRowCompare, foundRowCompare);
+        assertEquals(expectedRowCompare, foundRowCompare);
     }
 
 }
