@@ -15,10 +15,14 @@ public class Main {
         FileValidator.completedEntries entries = validator.readCsvFiles(files);
 
         ProcessingResult.compiledResults results = processor.processResult(entries);
+        writer.validateDirectories(Path.of("output"));
 
-        writer.writeCSVFiles(results);
-        writer.writeInvalidFilesCSV(entries.invalidEntries());
-        writer.writeSummaryReport(entries,results);
+        writer.writeCSVFiles(results,
+                Path.of("output/passed"),
+                Path.of("output/failed")
+                );
+        writer.writeInvalidFilesCSV(entries.invalidEntries(), Path.of("output/invalid"));
+        writer.writeSummaryReport(entries,results, Path.of("output/summary"));
 
     }
 }

@@ -18,10 +18,26 @@ public class OutputWriter {
     private String filenameTimestamp = generateTimestamp(1);
     private String reportTimestamp = generateTimestamp(2);
 
-    public void writeCSVFiles(ProcessingResult.compiledResults results){
+    public void validateDirectories(Path output){
+        try{
+            Files.createDirectories(output);
+            Files.createDirectories(Path.of(String.valueOf(output),"passed"));
+            Files.createDirectories(Path.of(String.valueOf(output),"failed"));
+            Files.createDirectories(Path.of(String.valueOf(output),"summary"));
+            Files.createDirectories(Path.of(String.valueOf(output),"invalid"));
+        }
+        catch (IOException e){
+            System.err.println("Failed to create directories");
+        }
+    }
 
-        Path passedCsv = Path.of("output\\passed\\PassedRecords_" + filenameTimestamp + ".csv");
-        Path failedCsv = Path.of("output\\failed\\FailedRecords_" + filenameTimestamp + ".csv");
+
+    public void writeCSVFiles(ProcessingResult.compiledResults results,
+                              Path passed,
+                              Path failed){
+
+        Path passedCsv = Path.of(passed + "\\PassedRecords_" + filenameTimestamp + ".csv");
+        Path failedCsv = Path.of(failed + "\\FailedRecords_" + filenameTimestamp + ".csv");
 
 
         try (BufferedWriter writer = Files.newBufferedWriter(passedCsv, StandardCharsets.UTF_8)){
@@ -61,9 +77,9 @@ public class OutputWriter {
     }
 
 
-    public void writeInvalidFilesCSV(List<Entry> entries){
+    public void writeInvalidFilesCSV(List<Entry> entries, Path invalid){
         if (!entries.isEmpty()){
-            Path invalidFilesCsv = Path.of("output\\invalid\\InvalidFiles_" + filenameTimestamp + ".csv");
+            Path invalidFilesCsv = Path.of(invalid + "\\InvalidFiles_" + filenameTimestamp + ".csv");
             try (BufferedWriter writer = Files.newBufferedWriter(invalidFilesCsv, StandardCharsets.UTF_8)) {
                 String[] header = {"Filename", "Failure Reasons"};
                 writer.write(String.join(",", header));
@@ -92,8 +108,8 @@ public class OutputWriter {
         }
     }
 
-    public void writeSummaryReport(FileValidator.completedEntries entries, ProcessingResult.compiledResults results){
-        Path summaryPath = Path.of("output\\summary\\SummaryReport_" + filenameTimestamp + ".txt");
+    public void writeSummaryReport(FileValidator.completedEntries entries, ProcessingResult.compiledResults results, Path summary){
+        Path summaryPath = Path.of(summary + "\\SummaryReport_" + filenameTimestamp + ".txt");
         int successfulFiles = entries.validEntries().size();
         int failedFiles = entries.invalidEntries().size();
         int totalFiles =  successfulFiles + failedFiles;
