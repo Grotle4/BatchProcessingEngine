@@ -2,9 +2,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -13,13 +12,14 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class OutputWriterTest {
 
@@ -80,6 +80,8 @@ public class OutputWriterTest {
     Path tempSummary;
     @TempDir
     Path tempOutput;
+    @TempDir
+    Path tempDir;
 
     @BeforeEach
     void setUp(){
@@ -197,7 +199,64 @@ public class OutputWriterTest {
 
         helper.DisplayTestResults(expectedPaths, subDirs);
         assertEquals(expectedPaths, subDirs);
+    }
 
+    @Test
+    void validateEmptyCollections(){
+        List<Row> emptyRows = new ArrayList<>();
+        ProcessingResult.compiledResults emptyResults = new ProcessingResult.compiledResults(emptyRows, emptyRows);
+
+        writer.writeCSVFiles(emptyResults,
+                tempPassed,
+                tempFailed
+        );
+
+        List<Path> passedPaths = getFile(tempPassed, "csv");
+        List<Path> failedPaths = getFile(tempFailed, "csv");
+        List<String> passedLines = getLines(passedPaths.getFirst());
+        List<String> failedLines = getLines(failedPaths.getFirst());
+        List<String> passComparison = List.of(
+                "Customer ID,First Name,Last Name,Email,Account Balance");
+        List<String> failComparison = List.of(
+                "Customer ID,First Name,Last Name,Email,Account Balance,Failure Reasons");
+        helper.DisplayTestResults(passComparison, passedLines);
+        assertEquals(passComparison, passedLines);
+        helper.DisplayTestResults(failComparison, failedLines);
+        assertEquals(failComparison, failedLines);
+    }
+
+    private String captureStdErr(Runnable action) {
+        PrintStream originalErr = System.err;
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        try (PrintStream capture = new PrintStream(buffer, true, StandardCharsets.UTF_8)) {
+            System.setErr(capture);
+            action.run();
+        } finally {
+            System.setErr(originalErr);
+        }
+        return buffer.toString(StandardCharsets.UTF_8);
+    }
+
+    private ProcessingResult.compiledResults resultsWithOneRow() {
+        Row row = mock(Row.class);
+        when(row.getRow()).thenReturn(new String[]{"1", "Jane", "Doe", "jane@example.com", "100.00"});
+
+        ProcessingResult.compiledResults results = mock(ProcessingResult.compiledResults.class);
+        when(results.passedRows()).thenReturn(List.of(row));
+        return results;
+    }
+
+    @Test
+    void checkForIOFailure() throws IOException{
+        Path missingPassed = tempDir.resolve("does-not-exist").resolve("passed");
+        Path missingFailed = tempDir.resolve("does-not-exist").resolve("failed");
+
+        String err = captureStdErr(() ->
+                assertDoesNotThrow(() ->
+                        writer.writeCSVFiles(resultsWithOneRow(), missingPassed, missingFailed)));
+
+        assertTrue(err.contains("IOException"),
+                "Expected the caught IOException's stack trace on System.err but got: " + err);
     }
 
 
